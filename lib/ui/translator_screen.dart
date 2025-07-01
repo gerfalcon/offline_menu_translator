@@ -75,6 +75,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         _downloadProgress = null;
       });
 
+      final path = await _downloaderDataSource.getFilePath();
+      await gemma.modelManager.setModelPath(path);
+
       _inferenceModel = await gemma.createModel(
         modelType: ModelType.gemmaIt,
         supportImage: true,
@@ -325,11 +328,23 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
     // 1. Create the user's message object.
     // Use a default prompt if the user only provides an image.
-    final userMessage = Message.withImage(
-      text: text.isNotEmpty ? text : "Please translate this menu into English.",
-      imageBytes: image!,
+    Message userMessage;
+    if (image == null || image.isEmpty) {
+      userMessage = Message.text(
+        text: text.isNotEmpty
+            ? text
+            : "Please translate this menu into English.",
+        isUser: true,
+      );
+    } else {
+      userMessage = Message.withImage(
+        text: text.isNotEmpty
+            ? text
+            : "Please translate this menu into English.",
+        imageBytes: image,
       isUser: true,
     );
+    }
 
     // 2. Add the user's message to the UI and clear the input fields.
     setState(() {
