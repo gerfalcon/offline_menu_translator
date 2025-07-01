@@ -75,6 +75,9 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         _downloadProgress = null;
       });
 
+      final path = await _downloaderDataSource.getFilePath();
+      await gemma.modelManager.setModelPath(path);
+
       _inferenceModel = await gemma.createModel(
         modelType: ModelType.gemmaIt,
         supportImage: true,
