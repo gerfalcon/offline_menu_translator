@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required to download the model bundle over the network. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:label="offline_menu_translator"
         android:name="${applicationName}"
@@ -25,6 +28,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- GPU backend (LiteRT-LM): on Android 12+ the app linker namespace
+             can't dlopen the vendor OpenCL ICD without declaring its loader.
+             libvndksupport.so provides android_load_sphal_library(), which the
+             OpenCL loader uses to reach libOpenCL.so in the sphal namespace. -->
+        <uses-native-library android:name="libvndksupport.so" android:required="false"/>
         <uses-native-library
             android:name="libOpenCL.so"
             android:required="false"/>
