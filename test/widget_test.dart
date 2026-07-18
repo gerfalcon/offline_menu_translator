@@ -1,30 +1,56 @@
-// This is a basic Flutter widget test.
+// Widget tests for the Offline Menu Translator.
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// The root app (`MyApp` -> `TranslatorScreen`) kicks off a multi-gigabyte
+// model download in `initState`, which is not suitable for a widget test.
+// Instead we test `ChatMessageWidget`, the pure presentation widget that
+// renders chat bubbles, which has no side effects.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:offline_menu_translator/main.dart';
+import 'package:offline_menu_translator/ui/translator_screen.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('ChatMessageWidget renders the message text', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: ChatMessageWidget(
+            message: Message(text: 'Grilled salmon', isUser: false),
+          ),
+        ),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.byType(ChatMessageWidget), findsOneWidget);
+    expect(find.textContaining('Grilled salmon'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('User and AI bubbles both render their text', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              ChatMessageWidget(
+                message: Message(text: 'Translate this menu', isUser: true),
+              ),
+              ChatMessageWidget(
+                message: Message(text: 'Here is the translation', isUser: false),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(ChatMessageWidget), findsNWidgets(2));
+    expect(find.textContaining('Translate this menu'), findsOneWidget);
+    expect(find.textContaining('Here is the translation'), findsOneWidget);
   });
 }
