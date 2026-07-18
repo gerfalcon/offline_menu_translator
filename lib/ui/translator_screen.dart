@@ -39,9 +39,14 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     super.initState();
     _downloaderDataSource = GemmaDownloaderDataSource(
       model: DownloadModel(
+        // Gemma 4 E2B — the latest multimodal (text + image) model
+        // highlighted by flutter_gemma. Distributed as a public,
+        // non-gated `.litertlm` bundle, so no HuggingFace token is
+        // required. Swap the filename for `gemma-4-E4B-it.litertlm`
+        // for the larger, higher-quality E4B variant.
         modelUrl:
-            'https://huggingface.co/google/gemma-3n-E4B-it-litert-preview/resolve/main/gemma-3n-E4B-it-int4.task',
-        modelFilename: 'gemma-3n-E4B-it-int4.task',
+            'https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm',
+        modelFilename: 'gemma-4-E2B-it.litertlm',
       ),
     );
     _initializeModel();
@@ -55,7 +60,7 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
       if (!isModelInstalled) {
         setState(() {
-          _loadingMessage = 'Downloading Gemma 3N...';
+          _loadingMessage = 'Downloading Gemma 4...';
         });
 
         await _downloaderDataSource.downloadModel(
@@ -73,8 +78,20 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         _downloadProgress = null;
       });
 
+      // Register the locally downloaded file as the active model so the
+      // plugin loads it from disk. We keep the app's own downloader and
+      // point the plugin at the existing file via setModelPath (the modern
+      // installModel().fromFile() path would re-copy the multi-GB bundle
+      // into managed storage).
+      await gemma.modelManager.setModelPath(
+        await _downloaderDataSource.getFilePath(),
+      );
+
       _inferenceModel = await gemma.createModel(
-        modelType: ModelType.gemmaIt,
+        // Gemma 4 uses its own ModelType so the native `<|tool_call>` /
+        // `<|channel>thought` tokens are routed through the LiteRT-LM
+        // chat-template path.
+        modelType: ModelType.gemma4,
         supportImage: true,
         maxTokens: 2048,
       );

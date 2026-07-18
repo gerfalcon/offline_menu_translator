@@ -6,8 +6,10 @@ import 'package:offline_menu_translator/domain/download_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// TODO: Replace with your actual access token.
-final accessToken = "ADD_YOUR_KEY_HERE";
+/// HuggingFace access token. Gemma 4 E2B (litert-community) is a public,
+/// non-gated model, so this can stay empty. Set it only if you switch to a
+/// gated model that requires authentication.
+final accessToken = "";
 
 class GemmaDownloaderDataSource {
   final DownloadModel model;

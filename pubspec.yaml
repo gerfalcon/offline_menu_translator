@@ -14,6 +14,10 @@ dependencies:
 
   # pub-dev dependencies
   flutter_gemma: ^1.3.1 # The most important dependency
+  # Inference engine for `.litertlm` models (Gemma 4, Qwen3, FastVLM +
+  # all desktop). Engines are opt-in in flutter_gemma 1.x, so the core
+  # package alone cannot run any model.
+  flutter_gemma_litertlm: ^1.1.0
 
   image_picker: ^1.2.3
   flutter_markdown: ^0.7.1
