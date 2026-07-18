@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gemma/core/chat.dart';
-import 'package:flutter_gemma/core/model.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:image_picker/image_picker.dart';
@@ -355,13 +353,16 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
       // 5. Listen to the stream and aggregate the tokens.
       final responseStream = _chat!.generateChatResponseAsync();
 
-      await for (final token in responseStream) {
+      await for (final response in responseStream) {
         if (!mounted) return;
+        // flutter_gemma 1.x streams typed ModelResponse objects. We only
+        // aggregate text tokens; function-call/thinking chunks are ignored.
+        if (response is! TextResponse) continue;
         setState(() {
           // Get the last message in the list (our placeholder).
           final lastMessage = _messages.last;
           // Append the new token to its text.
-          final updatedText = lastMessage.text + token;
+          final updatedText = lastMessage.text + response.token;
           // Replace the old message with the updated one.
           _messages[_messages.length - 1] = Message(
             text: updatedText,
