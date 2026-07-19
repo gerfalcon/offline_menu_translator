@@ -1,2 +1,7 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
+
+// Large-model memory entitlements (required to load the ~2.6GB Gemma 4 bundle).
+CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements
+// Set your own Apple Development team to run on a physical device, e.g. via
+// Xcode > Signing & Capabilities, or add `DEVELOPMENT_TEAM = XXXXXXXXXX` here.
