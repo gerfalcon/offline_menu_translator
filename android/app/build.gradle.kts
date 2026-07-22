@@ -24,7 +24,9 @@ android {
         applicationId = "com.gerfalcon.example.offline_menu_translator"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 24
+        // Raised to 26: flutter_gemma declares minSdk 26, so the manifest
+        // merger rejects a lower app minSdk.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -54,7 +54,6 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
 
   Future<void> _initializeModel() async {
     try {
-      final gemma = FlutterGemmaPlugin.instance;
       final isModelInstalled = await _downloaderDataSource
           .checkModelExistence();
 
@@ -78,20 +77,21 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
         _downloadProgress = null;
       });
 
-      // Register the locally downloaded file as the active model so the
-      // plugin loads it from disk. We keep the app's own downloader and
-      // point the plugin at the existing file via setModelPath (the modern
-      // installModel().fromFile() path would re-copy the multi-GB bundle
-      // into managed storage).
-      await gemma.modelManager.setModelPath(
-        await _downloaderDataSource.getFilePath(),
-      );
-
-      _inferenceModel = await gemma.createModel(
+      // Register the file the app downloaded as the active model. We must
+      // declare fileType: litertlm — Gemma 4 ships as a `.litertlm` bundle,
+      // and without it the plugin defaults to ModelFileType.task and no
+      // engine matches (the LiteRT-LM engine only handles `.litertlm`).
+      // fromFile() references the file in place; it does not re-copy the
+      // multi-GB bundle.
+      await FlutterGemma.installModel(
         // Gemma 4 uses its own ModelType so the native `<|tool_call>` /
         // `<|channel>thought` tokens are routed through the LiteRT-LM
         // chat-template path.
         modelType: ModelType.gemma4,
+        fileType: ModelFileType.litertlm,
+      ).fromFile(await _downloaderDataSource.getFilePath()).install();
+
+      _inferenceModel = await FlutterGemma.getActiveModel(
         supportImage: true,
         maxTokens: 2048,
       );
